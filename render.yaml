@@ -1,0 +1,53 @@
+services:
+  - type: web
+    runtime: docker
+    name: evening-measurements-bot
+    plan: starter
+    healthCheckPath: /health
+    preDeployCommand: alembic upgrade head
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_NAME
+        value: evening-measurements
+      - key: DATABASE_URL
+        fromDatabase:
+          name: evening-measurements-db
+          property: connectionString
+      - key: TELEGRAM_BOT_TOKEN
+        sync: false
+      - key: TELEGRAM_ALLOWED_USER_IDS
+        sync: false
+      - key: TELEGRAM_ALLOWED_USERNAMES
+        sync: false
+      - key: TELEGRAM_WEBHOOK_SECRET
+        generateValue: true
+      - key: PUBLIC_WEBHOOK_BASE_URL
+        fromService:
+          type: web
+          name: evening-measurements-bot
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: AUTO_SET_WEBHOOK
+        value: "true"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_TEXT_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_VISION_MODEL
+        value: gpt-4o-mini
+      - key: OPENAI_TRANSCRIPTION_MODEL
+        value: gpt-4o-mini-transcribe
+      - key: DEFAULT_TIMEZONE
+        value: Europe/Tbilisi
+      - key: MEDIA_RETENTION_DAYS
+        value: "14"
+      - key: EXPORT_RETENTION_HOURS
+        value: "24"
+      - key: LOG_LEVEL
+        value: INFO
+
+databases:
+  - name: evening-measurements-db
+    plan: starter
+    databaseName: evening_measurements
+    user: evening_measurements
